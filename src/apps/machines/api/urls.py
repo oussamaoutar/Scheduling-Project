@@ -1,3 +1,11 @@
-from django.urls import path
+from django.urls import include, path
+from rest_framework.routers import DefaultRouter
 
-urlpatterns = []
+from apps.machines.api.views import MachineViewSet
+
+router = DefaultRouter()
+router.register("", MachineViewSet, basename="machine")
+
+urlpatterns = [
+    path("", include(router.urls)),
+]
