@@ -37,11 +37,25 @@ class ScheduleRun(TimeStampedModel):
         choices=RunStatus.choices,
         default=RunStatus.DRAFT,
     )
+
+    jobs = models.ManyToManyField(
+        "jobs.Job",
+        related_name="schedule_runs",
+        blank=True,
+    )
+
     launched_at = models.DateTimeField(null=True, blank=True)
     finished_at = models.DateTimeField(null=True, blank=True)
+
     cmax_minutes = models.PositiveIntegerField(null=True, blank=True)
     total_flow_time_minutes = models.PositiveIntegerField(null=True, blank=True)
     average_tardiness_minutes = models.PositiveIntegerField(null=True, blank=True)
+
+    job_sequence = models.JSONField(default=list, blank=True)
+    gantt_data = models.JSONField(default=list, blank=True)
+    result_metrics = models.JSONField(default=dict, blank=True)
+
+    error_message = models.TextField(blank=True)
     notes = models.TextField(blank=True)
 
     class Meta:
