@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
@@ -9,6 +10,7 @@ from apps.scheduling.api.serializers import (
     ScheduleRunSerializer,
 )
 from apps.scheduling.models import ScheduleRun
+from apps.scheduling.services.dashboard_service import SchedulingDashboardService
 from apps.scheduling.services.schedule_service import ScheduleService
 
 
@@ -103,3 +105,51 @@ class SchedulingComparisonAPIView(APIView):
             )
 
         return Response(comparison_result, status=status.HTTP_200_OK)
+
+
+class SchedulingDashboardAPIView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request):
+        service = SchedulingDashboardService()
+        return Response(service.build_dashboard_summary(), status=status.HTTP_200_OK)
+
+
+class ScheduleRunSummaryAPIView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, pk):
+        schedule_run = get_object_or_404(
+            ScheduleRun.objects.prefetch_related("jobs"),
+            pk=pk,
+        )
+        service = SchedulingDashboardService()
+        return Response(service.build_run_summary(schedule_run), status=status.HTTP_200_OK)
+
+
+class ScheduleRunKPIsAPIView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, pk):
+        schedule_run = get_object_or_404(
+            ScheduleRun.objects.prefetch_related("jobs"),
+            pk=pk,
+        )
+        service = SchedulingDashboardService()
+        return Response(service.build_run_kpis(schedule_run), status=status.HTTP_200_OK)
+
+
+class ScheduleRunGanttAPIView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, pk):
+        schedule_run = get_object_or_404(
+            ScheduleRun.objects.prefetch_related("jobs"),
+            pk=pk,
+        )
+        service = SchedulingDashboardService()
+        return Response(service.build_run_gantt(schedule_run), status=status.HTTP_200_OK)
