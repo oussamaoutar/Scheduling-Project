@@ -48,3 +48,25 @@ class ScheduleRunSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+
+
+class ScheduleComparisonRequestSerializer(serializers.Serializer):
+    job_ids = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=Job.objects.all(),
+        required=False,
+    )
+    algorithms = serializers.ListField(
+        child=serializers.ChoiceField(choices=ScheduleRun.Algorithm.choices),
+        required=False,
+        allow_empty=False,
+    )
+    ranking_metric = serializers.ChoiceField(
+        choices=[
+            ("cmax_minutes", "cmax_minutes"),
+            ("total_flow_time_minutes", "total_flow_time_minutes"),
+            ("average_tardiness_minutes", "average_tardiness_minutes"),
+        ],
+        required=False,
+        default="cmax_minutes",
+    )

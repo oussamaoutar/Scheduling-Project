@@ -1,8 +1,12 @@
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from apps.scheduling.api.serializers import ScheduleRunSerializer
+from apps.scheduling.api.serializers import (
+    ScheduleComparisonRequestSerializer,
+    ScheduleRunSerializer,
+)
 from apps.scheduling.models import ScheduleRun
 from apps.scheduling.services.schedule_service import ScheduleService
 
@@ -40,3 +44,43 @@ class ScheduleRunViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(updated_run)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class SchedulingAlgorithmsAPIView(APIView):
+    def get(self, request):
+        service = ScheduleService()
+        return Response(service.get_algorithm_catalog(), status=status.HTTP_200_OK)
+
+
+class SchedulingComparisonAPIView(APIView):
+    def post(self, request):
+        serializer = ScheduleComparisonRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        selected_jobs = serializer.validated_data.get("job_ids")
+        algorithms = serializer.validated_data.get("algorithms")
+        ranking_metric = serializer.validated_data.get(
+            "ranking_metric",
+            "cmax_minutes",
+        )
+
+        service = ScheduleService()
+
+        try:
+            comparison_result = service.compare_algorithms(
+                selected_jobs=selected_jobs,
+                algorithms=algorithms,
+                ranking_metric=ranking_metric,
+            )
+        except ValueError as exc:
+            return Response(
+                {"detail": str(exc)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except Exception as exc:
+            return Response(
+                {"detail": str(exc)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        return Response(comparison_result, status=status.HTTP_200_OK)
