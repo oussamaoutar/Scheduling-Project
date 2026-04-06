@@ -49,6 +49,17 @@ class ScheduleRunSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
 
+    def validate_name(self, value):
+        value = value.strip()
+
+        if not value:
+            raise serializers.ValidationError("Run name cannot be empty.")
+
+        return value
+
+    def validate_notes(self, value):
+        return value.strip()
+
 
 class ScheduleComparisonRequestSerializer(serializers.Serializer):
     job_ids = serializers.PrimaryKeyRelatedField(
@@ -70,3 +81,14 @@ class ScheduleComparisonRequestSerializer(serializers.Serializer):
         required=False,
         default="cmax_minutes",
     )
+
+    def validate_algorithms(self, value):
+        unique_algorithms = []
+        seen = set()
+
+        for algorithm in value:
+            if algorithm not in seen:
+                seen.add(algorithm)
+                unique_algorithms.append(algorithm)
+
+        return unique_algorithms

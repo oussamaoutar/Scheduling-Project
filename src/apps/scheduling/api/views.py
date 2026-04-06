@@ -1,3 +1,4 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -14,7 +15,17 @@ from apps.scheduling.services.schedule_service import ScheduleService
 class ScheduleRunViewSet(viewsets.ModelViewSet):
     queryset = ScheduleRun.objects.prefetch_related("jobs").all().order_by("-created_at")
     serializer_class = ScheduleRunSerializer
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
+    filterset_fields = {
+        "algorithm": ["exact"],
+        "objective": ["exact"],
+        "status": ["exact"],
+        "created_at": ["date", "date__gte", "date__lte"],
+    }
     search_fields = ["name", "algorithm", "objective", "status"]
     ordering_fields = [
         "created_at",
@@ -22,6 +33,8 @@ class ScheduleRunViewSet(viewsets.ModelViewSet):
         "algorithm",
         "status",
         "cmax_minutes",
+        "total_flow_time_minutes",
+        "average_tardiness_minutes",
     ]
 
     @action(detail=True, methods=["post"], url_path="execute")
@@ -47,12 +60,18 @@ class ScheduleRunViewSet(viewsets.ModelViewSet):
 
 
 class SchedulingAlgorithmsAPIView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
     def get(self, request):
         service = ScheduleService()
         return Response(service.get_algorithm_catalog(), status=status.HTTP_200_OK)
 
 
 class SchedulingComparisonAPIView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
     def post(self, request):
         serializer = ScheduleComparisonRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
