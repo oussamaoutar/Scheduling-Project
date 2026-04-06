@@ -1,0 +1,328 @@
+Voici les phases frontend que tu peux suivre pour notre projet d’ordonnancement industriel.
+
+PHASE 1 — Setup frontend
+Objectif : préparer une base propre du projet frontend.
+À faire :
+
+- créer le projet frontend
+- choisir la stack UI
+- configurer les dossiers/pages/composants/services
+- configurer l’appel API vers le backend local
+- préparer les routes principales
+- créer un layout global propre
+
+Détail :
+
+- base URL backend : "http://127.0.0.1:8000/api/"
+- prévoir un dossier "services/api.js" ou "services/api.ts"
+- prévoir un dossier "pages"
+- prévoir un dossier "components"
+- prévoir un dossier "types" si tu utilises TypeScript
+
+Livrable :
+
+- frontend qui démarre
+- structure propre
+- connexion API prête
+
+PHASE 2 — UI de base et navigation
+Objectif : mettre en place les pages principales et la navigation.
+À faire :
+
+- navbar / sidebar
+- page dashboard
+- page machines
+- page jobs
+- page operations
+- page scheduling
+- page comparison
+- page run details
+
+Détail :
+
+- il faut que l’utilisateur puisse naviguer facilement entre les modules
+- prévoir une UI moderne, claire, lisible
+- afficher les états : loading, error, empty, success
+
+Livrable :
+
+- navigation complète
+- pages vides mais structurées
+
+PHASE 3 — Intégration module Machines
+Objectif : consommer les endpoints machines.
+À faire :
+
+- afficher la liste des machines
+- créer une machine
+- modifier une machine
+- supprimer une machine
+- filtrer / rechercher les machines
+
+Endpoints backend :
+
+- "GET /api/machines/"
+- "POST /api/machines/"
+- "GET /api/machines/{id}/"
+- "PATCH /api/machines/{id}/"
+- "DELETE /api/machines/{id}/"
+
+Détail :
+
+- attention, les endpoints liste sont paginés
+- il faut lire les données dans "results"
+- formulaire propre avec validation visuelle
+- champs importants : code, name, machine_type, workstation_number, capacity_per_day, is_active
+
+Livrable :
+
+- écran machines complètement fonctionnel
+
+PHASE 4 — Intégration module Jobs
+Objectif : gérer les jobs côté frontend.
+À faire :
+
+- afficher la liste des jobs
+- créer un job
+- modifier un job
+- supprimer un job
+- afficher le détail d’un job
+
+Endpoints backend :
+
+- "GET /api/jobs/"
+- "POST /api/jobs/"
+- "GET /api/jobs/{id}/"
+- "PATCH /api/jobs/{id}/"
+- "DELETE /api/jobs/{id}/"
+
+Détail :
+
+- afficher total_processing_time
+- afficher les champs métier : code, name, quantity, priority, release_date, due_date, status, is_active
+- bien gérer les erreurs de validation backend
+
+Livrable :
+
+- écran jobs fonctionnel avec détail d’un job
+
+PHASE 5 — Intégration module Operations
+Objectif : relier les jobs aux machines via les opérations.
+À faire :
+
+- afficher la liste des opérations
+- créer une opération
+- modifier une opération
+- supprimer une opération
+- filtrer par job ou machine
+
+Endpoints backend :
+
+- "GET /api/jobs/operations/"
+- "POST /api/jobs/operations/"
+- "GET /api/jobs/operations/{id}/"
+- "PATCH /api/jobs/operations/{id}/"
+- "DELETE /api/jobs/operations/{id}/"
+
+Détail :
+
+- champs principaux : job, machine, sequence_order, processing_time_minutes, setup_time_minutes, transfer_time_minutes
+- il faut proposer des selects propres pour choisir job et machine
+- attention aux validations métier :
+  - machine inactive
+  - job inactif
+  - machine déjà utilisée dans le même job
+  - sequence_order déjà utilisé dans le même job
+
+Livrable :
+
+- écran operations fonctionnel et clair
+
+PHASE 6 — Création et exécution d’un ordonnancement
+Objectif : permettre à l’utilisateur de créer un run et de l’exécuter.
+À faire :
+
+- afficher la liste des schedule runs
+- créer un run
+- sélectionner l’algorithme
+- sélectionner les jobs
+- exécuter un run
+- afficher le statut du run
+
+Endpoints backend :
+
+- "GET /api/scheduling/runs/"
+- "POST /api/scheduling/runs/"
+- "GET /api/scheduling/runs/{id}/"
+- "PATCH /api/scheduling/runs/{id}/"
+- "DELETE /api/scheduling/runs/{id}/"
+- "POST /api/scheduling/runs/{id}/execute/"
+
+Détail :
+
+- algorithmes supportés :
+  - "spt"
+  - "lpt"
+  - "edd"
+  - "johnson"
+  - "cds"
+- contraintes :
+  - Johnson = exactement 2 machines par job
+  - CDS = au moins 3 machines par job
+  - Johnson et CDS demandent le même ordre machine pour tous les jobs sélectionnés
+
+Livrable :
+
+- écran scheduling fonctionnel avec création et exécution
+
+PHASE 7 — Dashboard et KPIs
+Objectif : afficher une vue globale métier de l’application.
+À faire :
+
+- page dashboard globale
+- cartes KPI
+- statistiques principales
+- liste des runs récents
+
+Endpoints backend :
+
+- "GET /api/scheduling/dashboard/"
+- "GET /api/scheduling/runs/{id}/summary/"
+- "GET /api/scheduling/runs/{id}/kpis/"
+
+Détail :
+
+- afficher :
+  - nombre de machines
+  - nombre de jobs
+  - nombre d’opérations
+  - nombre de runs
+  - runs complétés
+- pour un run :
+  - cmax_minutes
+  - total_flow_time_minutes
+  - average_tardiness_minutes
+  - average_flow_time_minutes
+  - total_tardiness_minutes
+  - max_tardiness_minutes
+  - late_jobs_count
+  - on_time_jobs_count
+
+Livrable :
+
+- dashboard moderne et exploitable
+
+PHASE 8 — Diagramme de Gantt et détails d’un run
+Objectif : visualiser graphiquement le résultat de l’ordonnancement.
+À faire :
+
+- afficher la séquence des jobs
+- afficher les tâches par machine
+- afficher les tâches par job
+- construire un diagramme de Gantt lisible
+- afficher la timeline
+
+Endpoints backend :
+
+- "GET /api/scheduling/runs/{id}/summary/"
+- "GET /api/scheduling/runs/{id}/gantt/"
+- "GET /api/scheduling/runs/{id}/kpis/"
+
+Détail :
+
+- la réponse gantt contient :
+  - "timeline"
+  - "machines"
+  - "jobs"
+  - "raw_items"
+- les temps sont en minutes
+- chaque tâche contient start_time, end_time, duration, operation_order, label
+- il faut rendre ça visuellement clair
+
+Livrable :
+
+- page de résultat d’ordonnancement avec Gantt
+
+PHASE 9 — Comparaison des algorithmes
+Objectif : permettre la comparaison entre plusieurs méthodes.
+À faire :
+
+- écran de comparaison
+- formulaire de sélection des jobs
+- sélection des algorithmes
+- affichage du classement
+- affichage comparatif des KPI
+
+Endpoints backend :
+
+- "GET /api/scheduling/algorithms/"
+- "POST /api/scheduling/compare/"
+
+Détail :
+
+- payload type :
+  - "job_ids"
+  - "algorithms"
+  - "ranking_metric"
+- ranking_metric possible :
+  - "cmax_minutes"
+  - "total_flow_time_minutes"
+  - "average_tardiness_minutes"
+- afficher les succès et les échecs proprement
+- afficher le rang de chaque algorithme
+
+Livrable :
+
+- page comparaison claire et convaincante
+
+PHASE 10 — UX, validation visuelle et finition
+Objectif : rendre l’application propre, moderne et agréable.
+À faire :
+
+- améliorer les formulaires
+- messages d’erreur lisibles
+- loaders
+- toasts ou alerts
+- confirm delete
+- empty states
+- responsive design
+- cohérence visuelle globale
+
+Détail :
+
+- faire une UI propre pour la soutenance
+- privilégier clarté et lisibilité
+- ne pas juste afficher du brut JSON
+- faire des composants réutilisables
+
+Livrable :
+
+- frontend prêt pour démo
+
+Ordre conseillé de travail :
+
+1. setup
+2. navigation
+3. machines
+4. jobs
+5. operations
+6. scheduling runs
+7. dashboard
+8. gantt
+9. comparison
+10. polish final
+
+Important pour l’intégration :
+
+- les endpoints liste sont paginés, lire "results"
+- base API : "http://127.0.0.1:8000/api/"
+- docs Swagger : "http://127.0.0.1:8000/api/docs/"
+
+Si tu veux avancer vite, commence d’abord par :
+
+- dashboard
+- machines
+- jobs
+- operations
+- create/execute scheduling run
+- summary/kpis/gantt
